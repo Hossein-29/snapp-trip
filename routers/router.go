@@ -3,6 +3,7 @@ package routers
 import (
 	"example/snapp/databases"
 	"example/snapp/models"
+	"example/snapp/validations"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,10 +17,18 @@ func CreateRule(c *gin.Context) {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
-	} else {
-		ruleReport.Status = "SUCCESS"
-		c.IndentedJSON(http.StatusOK, ruleReport)
+		return
 	}
+	isValid := validations.ValidateRule(rules)
+
+	if !isValid {
+		ruleReport.Status = "FAILED"
+		ruleReport.Message = err.Error()
+		c.IndentedJSON(http.StatusBadRequest, ruleReport)
+		return
+	}
+	ruleReport.Status = "SUCCESS"
+	c.IndentedJSON(http.StatusOK, ruleReport)
 
 	databases.Db.Create(&rules)
 

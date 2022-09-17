@@ -96,7 +96,7 @@ func PreValidation() {
 	}
 }
 
-func ValidateRule(t []*models.Rule) bool {
+func ValidateRule(t []models.Rule) bool {
 	isValid := true
 
 	for _, i := range t {
