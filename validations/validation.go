@@ -34,7 +34,7 @@ func PreValidation() {
 
 	for i, j := range cityRecords {
 		cities = append(cities, j[2])
-		fmt.Println(cities[i])
+		// fmt.Println(cities[i])
 		Cities[cities[i]] = true
 	}
 	// airline
@@ -53,8 +53,7 @@ func PreValidation() {
 
 	for i, j := range airlineRecords {
 		airlines = append(airlines, strings.ToLower(j[0]))
-
-		fmt.Println(airlines[i])
+		// fmt.Println(airlines[i])
 		Airlines[airlines[i]] = true
 	}
 	// agency
@@ -73,7 +72,7 @@ func PreValidation() {
 
 	for i, j := range agencyRecords {
 		agencies = append(agencies, j[2])
-		fmt.Println(agencies[i])
+		// fmt.Println(agencies[i])
 		Agencies[agencies[i]] = true
 	}
 	// supplier
@@ -92,15 +91,56 @@ func PreValidation() {
 
 	for i, j := range supplierRecords {
 		suppliers = append(suppliers, j[2])
-		fmt.Println(suppliers[i])
+		// fmt.Println(suppliers[i])
 		Suppliers[suppliers[i]] = true
 	}
 }
 
-func ValidateRule(t models.Rule) (isValid bool) {
-	return true
+func ValidateRule(t []*models.Rule) bool {
+	isValid := true
+
+	for _, i := range t {
+		for _, j := range i.Routes {
+			if !Cities[j.Origin] || !Cities[j.Destination] {
+				isValid = false
+				break
+			}
+		}
+		if !isValid {
+			break
+		}
+		for _, j := range i.Airlines {
+			if !Airlines[j] {
+				isValid = false
+				break
+			}
+		}
+		if !isValid {
+			break
+		}
+		for _, j := range i.Agencies {
+			if !Agencies[j] {
+				isValid = false
+				break
+			}
+		}
+		if !isValid {
+			break
+		}
+		for _, j := range i.Suppliers {
+			if !Airlines[j] {
+				isValid = false
+				break
+			}
+		}
+		if !isValid {
+			break
+		}
+	}
+
+	return isValid
 }
 
-func ValidateTicket(t models.Ticket) (isValid bool) {
+func ValidateTicket(t *[]models.Ticket) bool {
 	return true
 }

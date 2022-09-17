@@ -3,7 +3,6 @@ package databases
 import (
 	"example/snapp/models"
 	"fmt"
-	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,10 +16,19 @@ func ConnectToDatabase() {
 	Db, Err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if Err != nil {
-		log.Fatal(Err)
+		fmt.Println(Err)
 	} else {
 		fmt.Println("Successfully connected to database :)")
 	}
 
-	Db.AutoMigrate(&models.TempRule{})
+	Db.AutoMigrate(&models.RulesTable{})
+	Db.AutoMigrate(&models.RoutesTable{})
+	Db.AutoMigrate(&models.AirlinesTable{})
+	Db.AutoMigrate(&models.AgenciesTable{})
+	Db.AutoMigrate(&models.SuppliersTable{})
+	Db.AutoMigrate(&models.ValidCitiesTable{})
+	Db.AutoMigrate(&models.ValidAirlinesTable{})
+	Db.AutoMigrate(&models.ValidAgenciesTable{})
+	Db.AutoMigrate(&models.ValidSuppliersTable{})
+
 }

@@ -25,3 +25,51 @@ type TempRule struct {
 	Id   int  `json:"id" gorm:"primaryKey;autoIncrement"`
 	File JSON `json:"file" gorm:"type:JSON;not null"`
 }
+
+type RulesTable struct {
+	Id int `gorm:"primaryKey;autoIncrement"`
+}
+
+type RoutesTable struct {
+	Id     int `gorm:"primaryKey;autoIncrement"`
+	RuleId int
+	Rule   RulesTable `gorm:"foreignKey:RuleId;"`
+}
+
+type AirlinesTable struct {
+	Id     int `gorm:"primaryKey;autoIncrement"`
+	RuleId int
+	Rule   RulesTable `gorm:"foreignKey:RuleId;"`
+}
+
+type AgenciesTable struct {
+	Id     int `gorm:"primaryKey;autoIncrement"`
+	RuleId int
+	Rule   RulesTable `gorm:"foreignKey:RuleId;"`
+}
+
+type SuppliersTable struct {
+	Id     int `gorm:"primaryKey;autoIncrement"`
+	RuleId int
+	Rule   RulesTable `gorm:"foreignKey:RuleId;"`
+}
+
+type ValidCitiesTable struct {
+	Id   int `gorm:"primaryKey;autoIncrement"`
+	Name string
+}
+
+type ValidAirlinesTable struct {
+	Id   int `gorm:"primaryKey;autoIncrement"`
+	Name string
+}
+
+type ValidAgenciesTable struct {
+	Id   int `gorm:"primaryKey;autoIncrement"`
+	Name string
+}
+
+type ValidSuppliersTable struct {
+	Id   int `gorm:"primaryKey;autoIncrement"`
+	Name string
+}
