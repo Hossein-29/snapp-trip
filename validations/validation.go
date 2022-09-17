@@ -128,7 +128,7 @@ func ValidateRule(t []models.Rule) bool {
 			break
 		}
 		for _, j := range i.Suppliers {
-			if !Airlines[j] {
+			if !Suppliers[j] {
 				isValid = false
 				break
 			}
