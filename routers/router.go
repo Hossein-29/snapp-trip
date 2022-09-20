@@ -19,18 +19,21 @@ func CreateRule(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
 		return
 	}
+
 	isValid := validations.ValidateRule(rules)
 
 	if !isValid {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
+		c.String(http.StatusBadRequest, "second layer")
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
 		return
 	}
+
 	ruleReport.Status = "SUCCESS"
 	c.IndentedJSON(http.StatusOK, ruleReport)
 
-	databases.Db.Create(&rules)
+	databases.CreateRuleTable(rules)
 
 }
 

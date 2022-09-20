@@ -1,0 +1,54 @@
+[
+  {
+    "routes": [
+      {
+        "origin": "THR",
+        "destination": "MHD"
+      },
+      {
+        "origin": "ABD",
+        "destination": "SYZ"
+      }
+    ],
+    "airlines": [
+      "zv",
+      "i3"
+    ],
+    "agencies": [
+      "MOGHIM_TEST_AGENCY",
+      "SHADI_AVARAN_SAFAR"
+    ],
+    "suppliers": [
+      "faranegar",
+      "aseman"
+    ],
+    "amountType": "FIXED",
+    "amountValue": 100000
+  },
+  {
+    "routes": [
+      {
+        "origin": "THR",
+        "destination": "MHD"
+      },
+      {
+        "origin": "THR",
+        "destination": "SYZ"
+      }
+    ],
+    "airlines": [
+      "zv",
+      "i3"
+    ],
+    "agencies": [
+      "MOGHIM_TEST_AGENCY",
+      "SHADI_AVARAN_SAFAR"
+    ],
+    "suppliers": [
+      "faranegar",
+      "aseman"
+    ],
+    "amountType": "FIXED",
+    "amountValue": 100000
+  }
+]

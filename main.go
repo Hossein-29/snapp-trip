@@ -3,12 +3,15 @@ package main
 import (
 	"example/snapp/databases"
 	"example/snapp/routers"
+	"example/snapp/validations"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	databases.ConnectToDatabase()
+	databases.ConnectToPostgres()
+	//databases.ConnectToRedis()
+	validations.PreValidation()
 	router := gin.Default()
 	router.GET("/hello/:name", routers.SayHello)
 	router.POST("/create/rule", routers.CreateRule)

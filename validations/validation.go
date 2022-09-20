@@ -101,7 +101,7 @@ func ValidateRule(t []models.Rule) bool {
 
 	for _, i := range t {
 		for _, j := range i.Routes {
-			if !Cities[j.Origin] || !Cities[j.Destination] {
+			if (!Cities[j.Origin] && j.Origin != "") || (!Cities[j.Destination] && j.Destination != "") {
 				isValid = false
 				break
 			}
@@ -110,7 +110,7 @@ func ValidateRule(t []models.Rule) bool {
 			break
 		}
 		for _, j := range i.Airlines {
-			if !Airlines[j] {
+			if !Airlines[j] && j != "" {
 				isValid = false
 				break
 			}
@@ -119,7 +119,7 @@ func ValidateRule(t []models.Rule) bool {
 			break
 		}
 		for _, j := range i.Agencies {
-			if !Agencies[j] {
+			if !Agencies[j] && j != "" {
 				isValid = false
 				break
 			}
@@ -128,7 +128,7 @@ func ValidateRule(t []models.Rule) bool {
 			break
 		}
 		for _, j := range i.Suppliers {
-			if !Suppliers[j] {
+			if !Suppliers[j] && j != "" {
 				isValid = false
 				break
 			}
