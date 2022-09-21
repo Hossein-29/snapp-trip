@@ -25,7 +25,6 @@ func CreateRule(c *gin.Context) {
 	if !isValid {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
-		c.String(http.StatusBadRequest, "second layer")
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
 		return
 	}
@@ -44,7 +43,11 @@ func CreateTicket(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, tickets)
+	//c.IndentedJSON(http.StatusOK, tickets)
+
+	for i := range tickets {
+		databases.MatchTicket(tickets[i], c)
+	}
 
 }
 

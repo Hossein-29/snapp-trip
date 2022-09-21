@@ -10,7 +10,7 @@ import (
 
 func main() {
 	databases.ConnectToPostgres()
-	//databases.ConnectToRedis()
+	databases.ConnectToRedis()
 	validations.PreValidation()
 	router := gin.Default()
 	router.GET("/hello/:name", routers.SayHello)

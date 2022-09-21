@@ -17,7 +17,7 @@ func ConnectToPostgres() {
 	if Err != nil {
 		fmt.Println(Err)
 	} else {
-		fmt.Println("Successfully connected to database :)")
+		fmt.Println("Successfully connected to Postgres :)")
 	}
 
 	Db.AutoMigrate(&models.RulesTable{})
@@ -39,22 +39,29 @@ func CreateRuleTable(t []models.Rule) {
 		for _, j := range t[i].Routes {
 			RouteObj.Route = j.Origin + "-" + j.Destination
 			RouteObj.RuleId = IdObj.Id
+			CreateRouteSet(RouteObj.Route, RouteObj.RuleId)
 			Db.Model(&models.RoutesTable{}).Select("Route", "RuleId").Create(&RouteObj)
 		}
 		var AirlineObj models.AirlinesTable
 		for _, j := range t[i].Airlines {
 			AirlineObj.Airline = j
-			Db.Model(&models.AirlinesTable{}).Select("Airline").Create(&AirlineObj)
+			AirlineObj.RuleId = IdObj.Id
+			CreateAirlineSet(AirlineObj.Airline, AirlineObj.RuleId)
+			Db.Model(&models.AirlinesTable{}).Select("Airline", "RuleId").Create(&AirlineObj)
 		}
 		var AgencyObj models.AgenciesTable
 		for _, j := range t[i].Agencies {
 			AgencyObj.Agency = j
-			Db.Model(&models.AgenciesTable{}).Select("Agency").Create(&AgencyObj)
+			AgencyObj.RuleId = IdObj.Id
+			CreateAgencySet(AgencyObj.Agency, AirlineObj.RuleId)
+			Db.Model(&models.AgenciesTable{}).Select("Agency", "RuleId").Create(&AgencyObj)
 		}
 		var SupplierObj models.SuppliersTable
 		for _, j := range t[i].Suppliers {
 			SupplierObj.Supplier = j
-			Db.Model(&models.SuppliersTable{}).Select("Supplier").Create(&SupplierObj)
+			SupplierObj.RuleId = IdObj.Id
+			CreateSupplierSet(SupplierObj.Supplier, SupplierObj.RuleId)
+			Db.Model(&models.SuppliersTable{}).Select("Supplier", "RuleId").Create(&SupplierObj)
 		}
 	}
 }
