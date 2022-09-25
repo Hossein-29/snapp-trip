@@ -1,24 +1,27 @@
 package databases
 
 import (
+	"context"
 	"example/snapp/models"
 	"fmt"
-	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 )
 
 var Client *redis.Client
+var ctx context.Context
 
 func ConnectToRedis() {
+	ctx = context.Background()
 	Client = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
 
-	pong, err := Client.Ping().Result()
+	_, err := Client.Ping(ctx).Result()
 
 	if err != nil {
 		fmt.Println(err)
@@ -27,76 +30,155 @@ func ConnectToRedis() {
 		fmt.Println("Successfully connected to Redis :)")
 	}
 
-	fmt.Println(pong)
+	SetValue("ValidCityListCreated", "false")
+	SetValue("ValidCityTableCreated", "false")
+	SetValue("ValidAirlineListCreated", "false")
+	SetValue("ValidAirlineTableCreated", "false")
+	SetValue("ValidAgencyListCreated", "false")
+	SetValue("ValidAgencyTableCreated", "false")
+	SetValue("ValidSupplierListCreated", "false")
+	SetValue("ValidSupplierTableCreated", "false")
+}
 
-	// err := client.Set("firstKey", "firstValue", 0).Err()
-	// fmt.Println(err)
-	// val, err := client.Get("firstKey").Result()
-	// fmt.Println(val, err)
+func SetValue(key string, val interface{}) {
+	_, err := Client.Set(ctx, key, val, 0).Result()
+	if err != nil {
+		fmt.Printf("SetValue: %s", err.Error())
+	}
+}
 
-	//ctx := context.Background()
+func GetValue(key string) string {
+	res, err := Client.Get(ctx, key).Result()
+	if err != nil {
+		fmt.Printf("$$$GetValue: %s", err.Error())
+	}
+	return res
+}
 
-	// vaal1, err1 := client.Do("lpop", "Rule:THR-KRJ").Result()
-	// if err1 != nil {
-	// 	fmt.Println("hello", err1)
-	// } else {
-	// 	fmt.Println("ok", vaal1)
-	// }
+func CreateRuleHash(r models.RulesTable) {
+	hashName := "Rule:" + strconv.Itoa(r.Id)
+	_, err := Client.HSet(ctx, hashName, "amountType", r.AmountType, "amountValue", r.AmountValue).Result()
+	if err != nil {
+		fmt.Printf("CreateRuleHash: %s", err.Error())
+	}
 }
 
 func CreateRouteSet(route string, ruleid int) {
 	setName := "Rule:" + route
-	val, err := Client.Do("SADD", setName, ruleid).Result()
+	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("CreateRouteSet: %s", err.Error())
 		return
-	} else {
-		fmt.Printf("\nSeccussful redis : %d\n", val)
 	}
 }
 
 func CreateAirlineSet(airline string, ruleid int) {
-	setName := "RUle:" + airline
-	val, err := Client.Do("SADD", setName, ruleid).Result()
+	setName := "Rule:" + airline
+	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("CreateAirlineSet: %s", err.Error())
 		return
-	} else {
-		fmt.Printf("\nSeccussful redis : %d\n", val)
 	}
 }
 
 func CreateAgencySet(agency string, ruleid int) {
-	setName := "RUle:" + agency
-	val, err := Client.Do("SADD", setName, ruleid).Result()
+	setName := "Rule:" + agency
+	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("CreateAgencySet: %s", err.Error())
 		return
-	} else {
-		fmt.Printf("\nSeccussful redis : %d\n", val)
 	}
 }
 
 func CreateSupplierSet(supplier string, ruleid int) {
-	setName := "RUle:" + supplier
-	val, err := Client.Do("SADD", setName, ruleid).Result()
+	setName := "Rule:" + supplier
+	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("CreateSupplierSet: %s", err.Error())
 		return
-	} else {
-		fmt.Printf("\nSeccussful redis : %d\n", val)
 	}
 }
 
-func MatchTicket(t models.Ticket, c *gin.Context) {
+func CreateValidCityList(city string) {
+	_, err := Client.RPush(ctx, "Valid:City", city).Result()
+	if err != nil {
+		fmt.Printf("CreateValidCityList: %s\n", err.Error())
+		return
+	}
+}
+
+func CreateValidAirlineList(airline string) {
+	_, err := Client.RPush(ctx, "Valid:Airline", airline).Result()
+	if err != nil {
+		fmt.Printf("CreateValidAirlineList: %s\n", err.Error())
+		return
+	}
+}
+
+func CreateValidAgencyList(agency string) {
+	_, err := Client.RPush(ctx, "Valid:Agency", agency).Result()
+	if err != nil {
+		fmt.Printf("CreateValidAgencyList: %s\n", err.Error())
+		return
+	}
+}
+
+func CreateValidSupplierList(supplier string) {
+	_, err := Client.RPush(ctx, "Valid:Supplier", supplier).Result()
+	if err != nil {
+		fmt.Printf("CreateValidSupplierList: %s\n", err.Error())
+		return
+	}
+}
+
+func MatchTicket(t models.Ticket, c *gin.Context) (report models.TicketResponse) {
 	routeSet := "Rule:" + t.Origin + "-" + t.Destination
 	AirlineSet := "Rule:" + t.Airline
 	AgencySet := "Rule:" + t.Agency
 	SupplierSet := "Rule:" + t.Supplier
-	val, err := Client.Do("SINTER", routeSet, AirlineSet, AgencySet, SupplierSet).Result()
+	matchedRules, err := Client.SInter(ctx, routeSet, AirlineSet, AgencySet, SupplierSet).Result()
+
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("MatchTicket: %s", err.Error())
+		return report
 	}
-	c.String(http.StatusOK, "Matched rules : %v", val)
+
+	var basePrice float64 = t.BasePrice
+	var bestMarkup float64 = 0
+	var matchedRuleId int
+
+	fmt.Print("\n\n length of matched rules : ", len(matchedRules), "\t")
+
+	for i := range matchedRules {
+		ruleid, _ := strconv.Atoi(matchedRules[i])
+		hashName := "Rule:" + matchedRules[i]
+		fmt.Printf("\n name of the hash : %s", hashName)
+		typeRule, _ := Client.HGet(ctx, hashName, "amountType").Result()
+		valueRule, _ := Client.HGet(ctx, hashName, "amountValue").Float64()
+		fmt.Printf(" type : %s    value : %f", typeRule, valueRule)
+		if typeRule == "FIXED" && valueRule > bestMarkup {
+			fmt.Print("  hello1  ")
+			matchedRuleId = ruleid
+			bestMarkup = valueRule
+		} else if typeRule == "PERCENTAGE" && (valueRule*basePrice/float64(100)) > bestMarkup {
+			fmt.Print(" hello2  ")
+			matchedRuleId = ruleid
+			bestMarkup = (valueRule * basePrice / float64(100))
+		} else {
+			fmt.Print("  hello3  ")
+		}
+		fmt.Print(ruleid, "\t", bestMarkup, "\n\n")
+	}
+
+	report.RuleId = matchedRuleId
+	report.Origin = t.Origin
+	report.Airline = t.Airline
+	report.Agency = t.Agency
+	report.Supplier = t.Supplier
+	report.BasePrice = t.BasePrice
+	report.Markup = bestMarkup
+	report.PayablePrice = basePrice + bestMarkup
+
+	return report
 
 }

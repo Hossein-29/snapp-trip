@@ -10,3 +10,8 @@ type Ticket struct {
 	Markup       float64 `json:"markup"`
 	PayablePrice float64 `json:"payableprice"`
 }
+
+type TicketResponse struct {
+	RuleId int `json:"ruleId"`
+	Ticket
+}

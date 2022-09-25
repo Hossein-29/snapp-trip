@@ -12,7 +12,7 @@ import (
 func CreateRule(c *gin.Context) {
 	var rules []models.Rule
 	err := c.BindJSON(&rules)
-	var ruleReport models.Report
+	var ruleReport models.RuleResponse
 	if err != nil {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
@@ -45,9 +45,14 @@ func CreateTicket(c *gin.Context) {
 
 	//c.IndentedJSON(http.StatusOK, tickets)
 
+	var ticketresponses []models.TicketResponse
+
 	for i := range tickets {
-		databases.MatchTicket(tickets[i], c)
+		temp := databases.MatchTicket(tickets[i], c)
+		ticketresponses = append(ticketresponses, temp)
 	}
+
+	c.IndentedJSON(http.StatusOK, ticketresponses)
 
 }
 

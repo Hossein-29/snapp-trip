@@ -26,7 +26,7 @@ type Rule struct {
 
 type JSON []byte
 
-type Report struct {
+type RuleResponse struct {
 	Status  string      `json:"status"`
 	Message interface{} `json:"message"`
 }
@@ -37,7 +37,9 @@ type TempRule struct {
 }
 
 type RulesTable struct {
-	Id int `gorm:"primaryKey;autoIncrement"`
+	Id          int `gorm:"primaryKey;autoIncrement"`
+	AmountType  string
+	AmountValue float64
 }
 
 type RoutesTable struct {
@@ -66,24 +68,4 @@ type SuppliersTable struct {
 	Supplier string
 	RuleId   int
 	Rule     RulesTable `gorm:"foreignKey:RuleId;"`
-}
-
-type ValidCitiesTable struct {
-	Id   int `gorm:"primaryKey;autoIncrement"`
-	Name string
-}
-
-type ValidAirlinesTable struct {
-	Id   int `gorm:"primaryKey;autoIncrement"`
-	Name string
-}
-
-type ValidAgenciesTable struct {
-	Id   int `gorm:"primaryKey;autoIncrement"`
-	Name string
-}
-
-type ValidSuppliersTable struct {
-	Id   int `gorm:"primaryKey;autoIncrement"`
-	Name string
 }
