@@ -24,17 +24,17 @@ type Rule struct {
 	AmountValue float64  `json:"amountValue"`
 }
 
-type JSON []byte
+// type JSON []byte
 
 type RuleResponse struct {
 	Status  string      `json:"status"`
 	Message interface{} `json:"message"`
 }
 
-type TempRule struct {
-	Id   int  `json:"id" gorm:"primaryKey;autoIncrement"`
-	File JSON `json:"file" gorm:"type:JSON;not null"`
-}
+// type TempRule struct {
+// 	Id   int  `json:"id" gorm:"primaryKey;autoIncrement"`
+// 	File JSON `json:"file" gorm:"type:JSON;not null"`
+// }
 
 type RulesTable struct {
 	Id          int `gorm:"primaryKey;autoIncrement"`

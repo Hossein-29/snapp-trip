@@ -18,12 +18,11 @@ var Agencies = map[string]bool{}
 var Suppliers = map[string]bool{}
 
 func PreValidation() {
-
+	ctx = context.Background()
 	PreValidationCity()
 	PreValidationAirline()
 	PreValidationAgency()
 	PreValidationSupplier()
-
 }
 
 func PreValidationCity() {
@@ -34,9 +33,8 @@ func PreValidationCity() {
 		if err != nil {
 			fmt.Printf("PreValidationCity: %s\n", err.Error())
 		}
-		return
 	} else if databases.GetValue("ValidCityTableCreated") == "true" {
-		return
+
 	} else {
 		var cityRecords [][]string
 		cityFile, err := os.Open("city.csv")
@@ -219,6 +217,6 @@ func ValidateRule(t []models.Rule) bool {
 	return isValid
 }
 
-func ValidateTicket(t *[]models.Ticket) bool {
-	return true
-}
+// func ValidateTicket(t *[]models.Ticket) bool {
+// 	return true
+// }

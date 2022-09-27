@@ -29,15 +29,45 @@ func ConnectToRedis() {
 	} else {
 		fmt.Println("Successfully connected to Redis :)")
 	}
+	var cnt int64
 
-	SetValue("ValidCityListCreated", "false")
-	SetValue("ValidCityTableCreated", "false")
-	SetValue("ValidAirlineListCreated", "false")
-	SetValue("ValidAirlineTableCreated", "false")
-	SetValue("ValidAgencyListCreated", "false")
-	SetValue("ValidAgencyTableCreated", "false")
-	SetValue("ValidSupplierListCreated", "false")
-	SetValue("ValidSupplierTableCreated", "false")
+	// city
+	if cnt, _ = Client.Exists(ctx, "ValidCityListCreated").Result(); cnt == 0 {
+		SetValue("ValidCityListCreated", "false")
+	}
+	if cnt, _ = Client.Exists(ctx, "ValidCityTableCreated").Result(); cnt == 0 {
+		SetValue("ValidCityTableCreated", "false")
+	}
+
+	// airline
+	if cnt, _ = Client.Exists(ctx, "ValidAirlineListCreated").Result(); cnt == 0 {
+		SetValue("ValidAirlineListCreated", "false")
+	}
+	if cnt, _ = Client.Exists(ctx, "ValidAirlineTableCreated").Result(); cnt == 0 {
+		SetValue("ValidAirlineTableCreated", "false")
+	}
+
+	// agency
+	if cnt, _ = Client.Exists(ctx, "ValidAgencyListCreated").Result(); cnt == 0 {
+		SetValue("ValidAgencyListCreated", "false")
+	}
+	if cnt, _ = Client.Exists(ctx, "ValidAgencyTableCreated").Result(); cnt == 0 {
+		SetValue("ValidAgencyTableCreated", "false")
+	}
+
+	// supplier
+	if cnt, _ = Client.Exists(ctx, "ValidSupplierListCreated").Result(); cnt == 0 {
+		SetValue("ValidSupplierListCreated", "false")
+	}
+	if cnt, _ = Client.Exists(ctx, "ValidSupplierTableCreated").Result(); cnt == 0 {
+		SetValue("ValidSupplierTableCreated", "false")
+	}
+
+	// postgres models
+	if cnt, _ = Client.Exists(ctx, "PostgresModelsCreated").Result(); cnt == 0 {
+		SetValue("PostgresModelsCreated", "false")
+	}
+
 }
 
 func SetValue(key string, val interface{}) {
@@ -50,7 +80,7 @@ func SetValue(key string, val interface{}) {
 func GetValue(key string) string {
 	res, err := Client.Get(ctx, key).Result()
 	if err != nil {
-		fmt.Printf("$$$GetValue: %s", err.Error())
+		fmt.Printf("GetValue: %s", err.Error())
 	}
 	return res
 }
@@ -64,7 +94,7 @@ func CreateRuleHash(r models.RulesTable) {
 }
 
 func CreateRouteSet(route string, ruleid int) {
-	setName := "Rule:" + route
+	setName := "Rule:Route:" + route
 	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
 		fmt.Printf("CreateRouteSet: %s", err.Error())
@@ -73,7 +103,7 @@ func CreateRouteSet(route string, ruleid int) {
 }
 
 func CreateAirlineSet(airline string, ruleid int) {
-	setName := "Rule:" + airline
+	setName := "Rule:Airline:" + airline
 	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
 		fmt.Printf("CreateAirlineSet: %s", err.Error())
@@ -82,7 +112,7 @@ func CreateAirlineSet(airline string, ruleid int) {
 }
 
 func CreateAgencySet(agency string, ruleid int) {
-	setName := "Rule:" + agency
+	setName := "Rule:Agency:" + agency
 	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
 		fmt.Printf("CreateAgencySet: %s", err.Error())
@@ -91,7 +121,7 @@ func CreateAgencySet(agency string, ruleid int) {
 }
 
 func CreateSupplierSet(supplier string, ruleid int) {
-	setName := "Rule:" + supplier
+	setName := "Rule:Supplier:" + supplier
 	_, err := Client.SAdd(ctx, setName, ruleid).Result()
 	if err != nil {
 		fmt.Printf("CreateSupplierSet: %s", err.Error())
@@ -132,12 +162,23 @@ func CreateValidSupplierList(supplier string) {
 }
 
 func MatchTicket(t models.Ticket, c *gin.Context) (report models.TicketResponse) {
-	routeSet := "Rule:" + t.Origin + "-" + t.Destination
-	AirlineSet := "Rule:" + t.Airline
-	AgencySet := "Rule:" + t.Agency
-	SupplierSet := "Rule:" + t.Supplier
-	matchedRules, err := Client.SInter(ctx, routeSet, AirlineSet, AgencySet, SupplierSet).Result()
+	routeSet1 := "Rule:Route:" + t.Origin + "-" + t.Destination
+	routeSet2 := "Rule:Route:" + t.Origin + "-"
+	routeSet3 := "Rule:Route:" + "-" + t.Destination
+	routeSet4 := "Rule:Route:" + "-"
+	airlineSet1 := "Rule:Airline:" + t.Airline
+	airlineSet2 := "Rule:Airline:"
+	agencySet1 := "Rule:Agency:" + t.Agency
+	agencySet2 := "Rule:Agency:"
+	supplierSet1 := "Rule:Supplier:" + t.Supplier
+	supplierSet2 := "Rule:Supplier:"
 
+	Client.SUnionStore(ctx, "TempRoute", routeSet1, routeSet2, routeSet3, routeSet4)
+	Client.SUnionStore(ctx, "TempAirline", airlineSet1, airlineSet2)
+	Client.SUnionStore(ctx, "TempAgency", agencySet1, agencySet2)
+	Client.SUnionStore(ctx, "TempSupplier", supplierSet1, supplierSet2)
+
+	matchedRules, err := Client.SInter(ctx, "TempRoute", "TempAirline", "TempAgency", "TempSupplier").Result()
 	if err != nil {
 		fmt.Printf("MatchTicket: %s", err.Error())
 		return report
@@ -145,37 +186,29 @@ func MatchTicket(t models.Ticket, c *gin.Context) (report models.TicketResponse)
 
 	var basePrice float64 = t.BasePrice
 	var bestMarkup float64 = 0
-	var matchedRuleId int
-
-	fmt.Print("\n\n length of matched rules : ", len(matchedRules), "\t")
+	var matchedRuleId int = -1
 
 	for i := range matchedRules {
 		ruleid, _ := strconv.Atoi(matchedRules[i])
 		hashName := "Rule:" + matchedRules[i]
-		fmt.Printf("\n name of the hash : %s", hashName)
 		typeRule, _ := Client.HGet(ctx, hashName, "amountType").Result()
 		valueRule, _ := Client.HGet(ctx, hashName, "amountValue").Float64()
-		fmt.Printf(" type : %s    value : %f", typeRule, valueRule)
 		if typeRule == "FIXED" && valueRule > bestMarkup {
-			fmt.Print("  hello1  ")
 			matchedRuleId = ruleid
 			bestMarkup = valueRule
 		} else if typeRule == "PERCENTAGE" && (valueRule*basePrice/float64(100)) > bestMarkup {
-			fmt.Print(" hello2  ")
 			matchedRuleId = ruleid
 			bestMarkup = (valueRule * basePrice / float64(100))
-		} else {
-			fmt.Print("  hello3  ")
 		}
-		fmt.Print(ruleid, "\t", bestMarkup, "\n\n")
 	}
 
 	report.RuleId = matchedRuleId
 	report.Origin = t.Origin
+	report.Destination = t.Destination
 	report.Airline = t.Airline
 	report.Agency = t.Agency
 	report.Supplier = t.Supplier
-	report.BasePrice = t.BasePrice
+	report.BasePrice = basePrice
 	report.Markup = bestMarkup
 	report.PayablePrice = basePrice + bestMarkup
 

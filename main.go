@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	databases.ConnectToPostgres()
 	databases.ConnectToRedis()
+	databases.ConnectToPostgres()
 	validations.PreValidation()
 	router := gin.Default()
 	router.GET("/hello/:name", routers.SayHello)

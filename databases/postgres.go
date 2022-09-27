@@ -20,15 +20,18 @@ func ConnectToPostgres() {
 		fmt.Println("Successfully connected to Postgres :)")
 	}
 
-	Db.AutoMigrate(&models.RulesTable{})
-	Db.AutoMigrate(&models.RoutesTable{})
-	Db.AutoMigrate(&models.AirlinesTable{})
-	Db.AutoMigrate(&models.AgenciesTable{})
-	Db.AutoMigrate(&models.SuppliersTable{})
-	Db.AutoMigrate(&models.ValidCityTable{})
-	Db.AutoMigrate(&models.ValidAirlineTable{})
-	Db.AutoMigrate(&models.ValidAgencyTable{})
-	Db.AutoMigrate(&models.ValidSupplierTable{})
+	if status := GetValue("PostgresModelsCreated"); status == "false" {
+		Db.AutoMigrate(&models.RulesTable{})
+		Db.AutoMigrate(&models.RoutesTable{})
+		Db.AutoMigrate(&models.AirlinesTable{})
+		Db.AutoMigrate(&models.AgenciesTable{})
+		Db.AutoMigrate(&models.SuppliersTable{})
+		Db.AutoMigrate(&models.ValidCityTable{})
+		Db.AutoMigrate(&models.ValidAirlineTable{})
+		Db.AutoMigrate(&models.ValidAgencyTable{})
+		Db.AutoMigrate(&models.ValidSupplierTable{})
+		SetValue("PostgresModelsCreated", "true")
+	}
 }
 
 func CreateRuleTable(t []models.Rule) {

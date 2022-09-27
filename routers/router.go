@@ -4,6 +4,7 @@ import (
 	"example/snapp/databases"
 	"example/snapp/models"
 	"example/snapp/validations"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,7 @@ func CreateRule(c *gin.Context) {
 	err := c.BindJSON(&rules)
 	var ruleReport models.RuleResponse
 	if err != nil {
+		fmt.Printf("CreateRule: %s", err.Error())
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
@@ -24,7 +26,7 @@ func CreateRule(c *gin.Context) {
 
 	if !isValid {
 		ruleReport.Status = "FAILED"
-		ruleReport.Message = err.Error()
+		ruleReport.Message = "UNVALID RULE"
 		c.IndentedJSON(http.StatusBadRequest, ruleReport)
 		return
 	}
@@ -40,6 +42,7 @@ func CreateTicket(c *gin.Context) {
 	var tickets []models.Ticket
 	err := c.BindJSON(&tickets)
 	if err != nil {
+		fmt.Printf("CreateTicket: %s", err.Error())
 		return
 	}
 

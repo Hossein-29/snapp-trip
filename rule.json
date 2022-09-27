@@ -16,7 +16,8 @@
     ],
     "agencies": [
       "MOGHIM_TEST_AGENCY",
-      "SHADI_AVARAN_SAFAR"
+      "SHADI_AVARAN_SAFAR",
+      "ELVA_SEIR"
     ],
     "suppliers": [
       "faranegar",
@@ -29,7 +30,7 @@
     "routes": [
       {
         "origin": "THR",
-        "destination": "IFN"
+        "destination": "MHD"
       },
       {
         "origin": "SYZ",
@@ -51,8 +52,8 @@
       "aseman",
       "ataa"
     ],
-    "amountType": "FIXED",
-    "amountValue": 100000
+    "amountType": "PERCENTAGE",
+    "amountValue": 10
   },
   {
     "routes": [
@@ -61,8 +62,8 @@
         "destination": "PYK"
       },
       {
-        "origin": "NSH",
-        "destination": "RJN"
+        "origin": "SYZ",
+        "destination": "IFN"
       },
       {
         "origin": "THR",
@@ -75,7 +76,8 @@
     ],
     "agencies": [
       "MOGHIM_TEST_AGENCY",
-      "SHADI_AVARAN_SAFAR"
+      "SHADI_AVARAN_SAFAR",
+      "FARJAM_PARVAZ"
     ],
     "suppliers": [
       "faranegar",
