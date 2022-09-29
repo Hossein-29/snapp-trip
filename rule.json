@@ -63,7 +63,7 @@
       },
       {
         "origin": "SYZ",
-        "destination": "IFN"
+        "destination": null
       },
       {
         "origin": "THR",

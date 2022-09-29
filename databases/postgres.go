@@ -20,7 +20,7 @@ func ConnectToPostgres() {
 		fmt.Println("Successfully connected to Postgres :)")
 	}
 
-	if status := GetValue("PostgresModelsCreated"); status == "false" {
+	if created := GetValue("PostgresModelsCreated"); created == "false" {
 		Db.AutoMigrate(&models.RulesTable{})
 		Db.AutoMigrate(&models.RoutesTable{})
 		Db.AutoMigrate(&models.AirlinesTable{})
@@ -96,3 +96,58 @@ func CreateValidSupplierTable(supplier string) {
 	obj.Name = supplier
 	Db.Model(&models.ValidSupplierTable{}).Select("Name").Create(&obj)
 }
+
+// This function could be used if we missed Redis to match tickets with rules
+// Also for the best performance we should index name of routes, airlines,
+// agencies and suppliers
+/*
+func MatchTicket(t models.Ticket) (report models.TicketResponse) {
+	routeName1 := t.Origin + "-" + t.Destination
+	routeName2 := t.Origin + "-"
+	routeName3 := "-" + t.Destination
+	routeName4 := "-"
+	airlineName1 := t.Airline
+	airlineName2 := ""
+	agencyName1 := t.Agency
+	agencyName2 := ""
+	supplierName1 := t.Supplier
+	supplierName2 := ""
+	var matchedRules []models.RulesTable
+	Db.Model(&models.RulesTable{}).
+		Select("rules_tables.id, rules_tables.amount_type, rules_tables.amount_value").
+		Joins("JOIN routes_tables ON rules_tables.id = routes_tables.rule_id AND (routes_tables.route = ? OR routes_tables.route = ? OR routes_tables.route = ? OR routes_tables.route = ?)", routeName1, routeName2, routeName3, routeName4).
+		Joins("JOIN airlines_tables ON rules_tables.id = airlines_tables.rule_id AND (airlines_tables.airline = ? OR airlines_tables.airline = ?)", airlineName1, airlineName2).
+		Joins("JOIN agencies_tables ON rules_tables.id = agencies_tables.rule_id AND (agencies_tables.agency = ? OR agencies_tables.agency = ?)", agencyName1, agencyName2).
+		Joins("JOIN suppliers_tables ON rules_tables.id = suppliers_tables.rule_id AND (suppliers_tables.supplier = ? OR suppliers_tables.supplier = ?)", supplierName1, supplierName2).
+		Find(&matchedRules)
+
+	var basePrice float64 = t.BasePrice
+	var bestMarkup float64 = 0
+	var matchedRuleId int = -1
+
+	for _, j := range matchedRules {
+		ruleid := j.Id
+		typeRule := j.AmountType
+		valueRule := j.AmountValue
+		if typeRule == "FIXED" && valueRule > bestMarkup {
+			matchedRuleId = ruleid
+			bestMarkup = valueRule
+		} else if typeRule == "PERCENTAGE" && (valueRule*basePrice/float64(100)) > bestMarkup {
+			matchedRuleId = ruleid
+			bestMarkup = (valueRule * basePrice / float64(100))
+		}
+	}
+
+	report.RuleId = matchedRuleId
+	report.Origin = t.Origin
+	report.Destination = t.Destination
+	report.Airline = t.Airline
+	report.Agency = t.Agency
+	report.Supplier = t.Supplier
+	report.BasePrice = basePrice
+	report.Markup = bestMarkup
+	report.PayablePrice = basePrice + bestMarkup
+
+	return report
+}
+*/

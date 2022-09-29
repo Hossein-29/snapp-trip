@@ -34,7 +34,7 @@ func PreValidationCity() {
 			fmt.Printf("PreValidationCity: %s\n", err.Error())
 		}
 	} else if databases.GetValue("ValidCityTableCreated") == "true" {
-
+		databases.Db.Model(&models.ValidCityTable{}).Select("Name").Find(&cities)
 	} else {
 		var cityRecords [][]string
 		cityFile, err := os.Open("city.csv")
@@ -71,7 +71,7 @@ func PreValidationAirline() {
 		}
 
 	} else if databases.GetValue("ValidAirlineTableCreated") == "true" {
-
+		databases.Db.Model(&models.ValidAirlineTable{}).Select("Name").Find(&airlines)
 	} else {
 		var airlineRecords [][]string
 		airlineFile, err := os.Open("airline.csv")
@@ -109,7 +109,7 @@ func PreValidationAgency() {
 		}
 
 	} else if databases.GetValue("ValidAgencyTableCreated") == "true" {
-
+		databases.Db.Model(&models.ValidAgencyTable{}).Select("Name").Find(&agencies)
 	} else {
 		var agencyRecords [][]string
 		agencyFile, err := os.Open("agency.csv")
@@ -146,7 +146,7 @@ func PreValidationSupplier() {
 		}
 
 	} else if databases.GetValue("ValidSupplierTableCreated") == "true" {
-
+		databases.Db.Model(&models.ValidSupplierTable{}).Select("Name").Find(&suppliers)
 	} else {
 		var supplierRecords [][]string
 		supplierFile, err := os.Open("supplier.csv")
@@ -216,7 +216,3 @@ func ValidateRule(t []models.Rule) bool {
 
 	return isValid
 }
-
-// func ValidateTicket(t *[]models.Ticket) bool {
-// 	return true
-// }

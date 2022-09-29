@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 )
 
@@ -161,7 +160,7 @@ func CreateValidSupplierList(supplier string) {
 	}
 }
 
-func MatchTicket(t models.Ticket, c *gin.Context) (report models.TicketResponse) {
+func MatchTicket(t models.Ticket) (report models.TicketResponse) {
 	routeSet1 := "Rule:Route:" + t.Origin + "-" + t.Destination
 	routeSet2 := "Rule:Route:" + t.Origin + "-"
 	routeSet3 := "Rule:Route:" + "-" + t.Destination

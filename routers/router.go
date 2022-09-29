@@ -18,7 +18,13 @@ func CreateRule(c *gin.Context) {
 		fmt.Printf("CreateRule: %s", err.Error())
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
-		c.IndentedJSON(http.StatusBadRequest, ruleReport)
+
+		// for debugging and more readablity
+		// c.IndentedJSON(http.StatusBadRequest, ruleReport)
+
+		// for best performance
+		c.JSON(http.StatusBadRequest, ruleReport)
+
 		return
 	}
 
@@ -27,12 +33,23 @@ func CreateRule(c *gin.Context) {
 	if !isValid {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = "UNVALID RULE"
-		c.IndentedJSON(http.StatusBadRequest, ruleReport)
+
+		// for debugging and more readablity
+		//c.IndentedJSON(http.StatusBadRequest, ruleReport)
+
+		// for best performance
+		c.JSON(http.StatusBadRequest, ruleReport)
+
 		return
 	}
 
 	ruleReport.Status = "SUCCESS"
-	c.IndentedJSON(http.StatusOK, ruleReport)
+
+	// for testing and more readabilty
+	// c.IndentedJSON(http.StatusOK, ruleReport)
+
+	// for best performance
+	c.JSON(http.StatusOK, ruleReport)
 
 	databases.CreateRuleTable(rules)
 
@@ -51,12 +68,15 @@ func CreateTicket(c *gin.Context) {
 	var ticketresponses []models.TicketResponse
 
 	for i := range tickets {
-		temp := databases.MatchTicket(tickets[i], c)
+		temp := databases.MatchTicket(tickets[i])
 		ticketresponses = append(ticketresponses, temp)
 	}
 
-	c.IndentedJSON(http.StatusOK, ticketresponses)
+	// for debugging and more readablity
+	// c.IndentedJSON(http.StatusOK, ticketresponses)
 
+	// for best performance
+	c.JSON(http.StatusOK, ticketresponses)
 }
 
 func SayHello(c *gin.Context) {
