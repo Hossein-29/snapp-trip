@@ -37,7 +37,7 @@ func PreValidationCity() {
 		databases.Db.Model(&models.ValidCityTable{}).Select("Name").Find(&cities)
 	} else {
 		var cityRecords [][]string
-		cityFile, err := os.Open("city.csv")
+		cityFile, err := os.Open("csv-files/city.csv")
 		if err != nil {
 			fmt.Printf("PreValidationCity: %s\n", err.Error())
 			return
@@ -74,7 +74,7 @@ func PreValidationAirline() {
 		databases.Db.Model(&models.ValidAirlineTable{}).Select("Name").Find(&airlines)
 	} else {
 		var airlineRecords [][]string
-		airlineFile, err := os.Open("airline.csv")
+		airlineFile, err := os.Open("csv-files/airline.csv")
 		if err != nil {
 			fmt.Printf("PreValidationAirline: %s\n", err.Error())
 			return
@@ -112,7 +112,7 @@ func PreValidationAgency() {
 		databases.Db.Model(&models.ValidAgencyTable{}).Select("Name").Find(&agencies)
 	} else {
 		var agencyRecords [][]string
-		agencyFile, err := os.Open("agency.csv")
+		agencyFile, err := os.Open("csv-files/agency.csv")
 		if err != nil {
 			fmt.Printf("PreValidationAgency: %s\n", err.Error())
 			return
@@ -149,7 +149,7 @@ func PreValidationSupplier() {
 		databases.Db.Model(&models.ValidSupplierTable{}).Select("Name").Find(&suppliers)
 	} else {
 		var supplierRecords [][]string
-		supplierFile, err := os.Open("supplier.csv")
+		supplierFile, err := os.Open("csv-files/supplier.csv")
 		if err != nil {
 			fmt.Printf("PreValidationSupplier: %s\n", err.Error())
 			return

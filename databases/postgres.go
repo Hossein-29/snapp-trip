@@ -99,7 +99,7 @@ func CreateValidSupplierTable(supplier string) {
 
 // This function could be used if we missed Redis to match tickets with rules
 // Also for the best performance we should index name of routes, airlines,
-// agencies and suppliers
+// agencies and suppliers in their tables
 /*
 func MatchTicket(t models.Ticket) (report models.TicketResponse) {
 	routeName1 := t.Origin + "-" + t.Destination
