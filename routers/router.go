@@ -19,7 +19,7 @@ func CreateRule(c *gin.Context) {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = err.Error()
 
-		// for debugging and more readablity
+		// for debugging and more readability
 		// c.IndentedJSON(http.StatusBadRequest, ruleReport)
 
 		// for best performance
@@ -34,7 +34,7 @@ func CreateRule(c *gin.Context) {
 		ruleReport.Status = "FAILED"
 		ruleReport.Message = "UNVALID RULE"
 
-		// for debugging and more readablity
+		// for debugging and more readability
 		//c.IndentedJSON(http.StatusBadRequest, ruleReport)
 
 		// for best performance
@@ -45,7 +45,7 @@ func CreateRule(c *gin.Context) {
 
 	ruleReport.Status = "SUCCESS"
 
-	// for testing and more readabilty
+	// for testing and more readability
 	// c.IndentedJSON(http.StatusOK, ruleReport)
 
 	// for best performance
@@ -59,6 +59,7 @@ func CreateTicket(c *gin.Context) {
 	var tickets []models.Ticket
 	err := c.BindJSON(&tickets)
 	if err != nil {
+		c.String(http.StatusBadRequest, "UNVALID TICKET")
 		fmt.Printf("CreateTicket: %s", err.Error())
 		return
 	}
@@ -72,7 +73,7 @@ func CreateTicket(c *gin.Context) {
 		ticketresponses = append(ticketresponses, temp)
 	}
 
-	// for debugging and more readablity
+	// for debugging and more readability
 	// c.IndentedJSON(http.StatusOK, ticketresponses)
 
 	// for best performance
