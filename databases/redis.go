@@ -23,7 +23,7 @@ func ConnectToRedis() {
 	_, err := Client.Ping(ctx).Result()
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("ConnectToRedis: %s", err.Error())
 		return
 	} else {
 		fmt.Println("Successfully connected to Redis :)")
@@ -177,15 +177,27 @@ func MatchTicket(t models.Ticket) (report models.TicketResponse) {
 	Client.SUnionStore(ctx, "TempAgency", agencySet1, agencySet2)
 	Client.SUnionStore(ctx, "TempSupplier", supplierSet1, supplierSet2)
 
+	// return -1 as ruleid if no matched rule exists
+	// return 0 as payableprice and markup if no matched rule exists
+	report.RuleId = -1
+	report.Origin = t.Origin
+	report.Destination = t.Destination
+	report.Airline = t.Airline
+	report.Agency = t.Agency
+	report.Supplier = t.Supplier
+	report.BasePrice = t.BasePrice
+	report.Markup = 0
+	report.PayablePrice = 0
+
+	var basePrice float64 = t.BasePrice
+	var bestMarkup float64 = 0
+	var matchedRuleId int = -1
+
 	matchedRules, err := Client.SInter(ctx, "TempRoute", "TempAirline", "TempAgency", "TempSupplier").Result()
 	if err != nil {
 		fmt.Printf("MatchTicket: %s", err.Error())
 		return report
 	}
-
-	var basePrice float64 = t.BasePrice
-	var bestMarkup float64 = 0
-	var matchedRuleId int = -1
 
 	for i := range matchedRules {
 		ruleid, _ := strconv.Atoi(matchedRules[i])
@@ -201,13 +213,11 @@ func MatchTicket(t models.Ticket) (report models.TicketResponse) {
 		}
 	}
 
+	if matchedRuleId == -1 {
+		return report
+	}
+
 	report.RuleId = matchedRuleId
-	report.Origin = t.Origin
-	report.Destination = t.Destination
-	report.Airline = t.Airline
-	report.Agency = t.Agency
-	report.Supplier = t.Supplier
-	report.BasePrice = basePrice
 	report.Markup = bestMarkup
 	report.PayablePrice = basePrice + bestMarkup
 

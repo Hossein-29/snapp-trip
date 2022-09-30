@@ -21,7 +21,7 @@
   },
   {
     "origin": "SYZ",
-    "destination": "KIH",
+    "destination": null,
     "airline": "zv",
     "agency": "FARJAM_PARVAZ",
     "supplier": "faranegar",

@@ -15,7 +15,8 @@ func ConnectToPostgres() {
 	dsn := "host=localhost user=postgres password=hb123456hb dbname=snapp port=5432 sslmode=disable"
 	Db, Err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if Err != nil {
-		fmt.Println(Err)
+		fmt.Printf("ConnectToPostgres: %s", Err.Error())
+		return
 	} else {
 		fmt.Println("Successfully connected to Postgres :)")
 	}
@@ -59,7 +60,7 @@ func CreateRuleTable(t []models.Rule) {
 		for _, j := range t[i].Agencies {
 			AgencyObj.Agency = j
 			AgencyObj.RuleId = RuleObj.Id
-			CreateAgencySet(AgencyObj.Agency, AirlineObj.RuleId)
+			CreateAgencySet(AgencyObj.Agency, AgencyObj.RuleId)
 			Db.Model(&models.AgenciesTable{}).Select("Agency", "RuleId").Create(&AgencyObj)
 		}
 		var SupplierObj models.SuppliersTable
